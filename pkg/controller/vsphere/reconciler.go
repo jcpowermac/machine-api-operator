@@ -459,6 +459,36 @@ func clone(s *machineScope) (string, error) {
 		return "", handleVSphereError("", notFoundMsg, defaultError, err)
 	}
 
+	// What OS family does the virtual machine template belong to?
+	family := ""
+	var props mo.VirtualMachine
+
+	if err := vmTemplate.Properties(s.Context, vmTemplate.Reference(), []string{"guest.guestFamily"}, &props); err != nil {
+		return "", fmt.Errorf("error getting snapshot information for template %s: %w", vmTemplate.Name(), err)
+	}
+
+	if props.Guest != nil {
+		family = props.Guest.GuestFamily
+	}
+	var customSpec *types.CustomizationSpec
+
+	if family == "windowsGuest" {
+		m := object.NewCustomizationSpecManager(vmTemplate.Client())
+		// the spec name would need to change
+		exists, err := m.DoesCustomizationSpecExist(s.Context, "1909")
+		if err != nil {
+			return "", fmt.Errorf("error getting customization spec %w", err)
+		}
+		if !exists {
+			return "", fmt.Errorf("error the customization spec does not exist %w", err)
+		}
+		item, err := m.GetCustomizationSpec(s.Context, "1909")
+		if err != nil {
+			return "", fmt.Errorf("error the customization spec does not exist %w", err)
+		}
+		customSpec = &item.Spec
+	}
+
 	var snapshotRef *types.ManagedObjectReference
 
 	// If a linked clone is requested then a MoRef for a snapshot must be
@@ -590,8 +620,9 @@ func clone(s *machineScope) (string, error) {
 			Pool:         types.NewReference(resourcepool.Reference()),
 			DiskMoveType: diskMoveType,
 		},
-		PowerOn:  true,
-		Snapshot: snapshotRef,
+		PowerOn:       true,
+		Snapshot:      snapshotRef,
+		Customization: customSpec,
 	}
 
 	task, err := vmTemplate.Clone(s, folder, s.machine.GetName(), spec)
