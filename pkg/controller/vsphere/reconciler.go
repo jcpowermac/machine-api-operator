@@ -599,6 +599,7 @@ func clone(s *machineScope) (string, error) {
 		Key:   GuestInfoHostname,
 		Value: s.machine.GetName(),
 	})
+	//DeviceChange:      deviceSpecs,
 
 	spec := types.VirtualMachineCloneSpec{
 		Config: &types.VirtualMachineConfigSpec{
@@ -609,7 +610,6 @@ func clone(s *machineScope) (string, error) {
 			InstanceUuid:      string(s.machine.UID),
 			Flags:             newVMFlagInfo(),
 			ExtraConfig:       extraConfig,
-			DeviceChange:      deviceSpecs,
 			NumCPUs:           numCPUs,
 			NumCoresPerSocket: numCoresPerSocket,
 			MemoryMB:          memMiB,
