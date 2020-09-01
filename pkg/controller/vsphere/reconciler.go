@@ -472,17 +472,17 @@ func clone(s *machineScope) (string, error) {
 	}
 	var customSpec *types.CustomizationSpec
 
-	if family == "windowsGuest" {
+	if family == "windowsGuest" && s.providerSpec.CustomizationSpecName != "" {
 		m := object.NewCustomizationSpecManager(vmTemplate.Client())
 		// the spec name would need to change
-		exists, err := m.DoesCustomizationSpecExist(s.Context, "1909")
+		exists, err := m.DoesCustomizationSpecExist(s.Context, s.providerSpec.CustomizationSpecName)
 		if err != nil {
 			return "", fmt.Errorf("error getting customization spec %w", err)
 		}
 		if !exists {
 			return "", fmt.Errorf("error the customization spec does not exist %w", err)
 		}
-		item, err := m.GetCustomizationSpec(s.Context, "1909")
+		item, err := m.GetCustomizationSpec(s.Context, s.providerSpec.CustomizationSpecName)
 		if err != nil {
 			return "", fmt.Errorf("error the customization spec does not exist %w", err)
 		}

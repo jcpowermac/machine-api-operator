@@ -66,6 +66,9 @@ type VSphereMachineProviderSpec struct {
 	// of the clone operation has no snapshots.
 	// +optional
 	CloneMode CloneMode `json:"cloneMode,omitempty"`
+
+	// CustomizationSpecName
+	CustomizationSpecName string `json:"customizationSpecName,omitempty"`
 }
 
 // CloneMode is the type of clone operation used to clone a VM from a template.
