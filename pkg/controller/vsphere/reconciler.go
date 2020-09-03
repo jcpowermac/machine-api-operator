@@ -460,25 +460,27 @@ func clone(s *machineScope) (string, error) {
 		return "", handleVSphereError("", notFoundMsg, defaultError, err)
 	}
 
-	// What OS family does the virtual machine template belong to?
-	family := ""
-	var props mo.VirtualMachine
-
-	if err := vmTemplate.Properties(s.Context, vmTemplate.Reference(), []string{"guest.guestFamily"}, &props); err != nil {
-		return "", fmt.Errorf("error getting snapshot information for template %s: %w", vmTemplate.Name(), err)
-	}
-
-	spew.Dump(props)
-
-	if props.Guest != nil {
-		family = props.Guest.GuestFamily
-	}
 	var customSpec *types.CustomizationSpec
+	/*
+		// What OS family does the virtual machine template belong to?
+		family := ""
+		var props mo.VirtualMachine
 
-	spew.Dump(family)
+		if err := vmTemplate.Properties(s.Context, vmTemplate.Reference(), []string{"guest.guestFamily"}, &props); err != nil {
+			return "", fmt.Errorf("error getting snapshot information for template %s: %w", vmTemplate.Name(), err)
+		}
+
+		spew.Dump(props)
+
+		if props.Guest != nil {
+			family = props.Guest.GuestFamily
+		}
+
+		spew.Dump(family)
+	*/
 	spew.Dump(s.providerSpec.CustomizationSpecName)
 
-	if family == "windowsGuest" && s.providerSpec.CustomizationSpecName != "" {
+	if s.providerSpec.CustomizationSpecName != "" {
 		m := object.NewCustomizationSpecManager(vmTemplate.Client())
 		// the spec name would need to change
 		exists, err := m.DoesCustomizationSpecExist(s.Context, s.providerSpec.CustomizationSpecName)
