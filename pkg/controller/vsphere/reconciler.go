@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/google/uuid"
 	machinev1 "github.com/openshift/machine-api-operator/pkg/apis/machine/v1beta1"
 	vspherev1 "github.com/openshift/machine-api-operator/pkg/apis/vsphereprovider/v1beta1"
@@ -467,10 +468,15 @@ func clone(s *machineScope) (string, error) {
 		return "", fmt.Errorf("error getting snapshot information for template %s: %w", vmTemplate.Name(), err)
 	}
 
+	spew.Dump(props)
+
 	if props.Guest != nil {
 		family = props.Guest.GuestFamily
 	}
 	var customSpec *types.CustomizationSpec
+
+	spew.Dump(family)
+	spew.Dump(s.providerSpec.CustomizationSpecName)
 
 	if family == "windowsGuest" && s.providerSpec.CustomizationSpecName != "" {
 		m := object.NewCustomizationSpecManager(vmTemplate.Client())
