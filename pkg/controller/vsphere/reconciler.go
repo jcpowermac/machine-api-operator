@@ -585,15 +585,14 @@ func clone(s *machineScope) (string, error) {
 
 	klog.V(3).Infof("jcallen - disk change was here")
 	// Only non-linked clones may expand the size of the template's disk.
-	/*
-		if snapshotRef == nil {
-			diskSpec, err := getDiskSpec(s, devices)
-			if err != nil {
-				return "", fmt.Errorf("error getting disk spec for %q: %w", s.providerSpec.Snapshot, err)
-			}
-			deviceSpecs = append(deviceSpecs, diskSpec)
+
+	if snapshotRef == nil {
+		diskSpec, err := getDiskSpec(s, devices)
+		if err != nil {
+			return "", fmt.Errorf("error getting disk spec for %q: %w", s.providerSpec.Snapshot, err)
 		}
-	*/
+		deviceSpecs = append(deviceSpecs, diskSpec)
+	}
 
 	klog.V(3).Infof("Getting network devices")
 	networkDevices, err := getNetworkDevices(s, devices)
@@ -657,8 +656,12 @@ func getDiskSpec(s *machineScope, devices object.VirtualDeviceList) (types.BaseV
 		return nil, fmt.Errorf("invalid disk count: %d", len(disks))
 	}
 
+	spew.Dump(disks)
+
 	disk := disks[0].(*types.VirtualDisk)
 	disk.CapacityInKB = int64(s.providerSpec.DiskGiB) * 1024 * 1024
+
+	spew.Dump(disk)
 
 	return &types.VirtualDeviceConfigSpec{
 		Operation: types.VirtualDeviceConfigSpecOperationEdit,
