@@ -593,12 +593,14 @@ func clone(s *machineScope) (string, error) {
 	}
 
 	klog.V(3).Infof("Getting network devices")
-	networkDevices, err := getNetworkDevices(s, devices)
-	if err != nil {
-		return "", fmt.Errorf("error getting network specs: %v", err)
-	}
+	/*
+		networkDevices, err := getNetworkDevices(s, devices)
+		if err != nil {
+			return "", fmt.Errorf("error getting network specs: %v", err)
+		}
+	*/
 
-	deviceSpecs = append(deviceSpecs, networkDevices...)
+	//deviceSpecs = append(deviceSpecs, networkDevices...)
 
 	extraConfig := []types.BaseOptionValue{}
 
@@ -618,6 +620,7 @@ func clone(s *machineScope) (string, error) {
 			InstanceUuid:      string(s.machine.UID),
 			Flags:             newVMFlagInfo(),
 			ExtraConfig:       extraConfig,
+			DeviceChange:      deviceSpecs,
 			NumCPUs:           numCPUs,
 			NumCoresPerSocket: numCoresPerSocket,
 			MemoryMB:          memMiB,
