@@ -583,24 +583,25 @@ func clone(s *machineScope) (string, error) {
 	// Create a new list of device specs for cloning the VM.
 	deviceSpecs := []types.BaseVirtualDeviceConfigSpec{}
 
+	klog.V(3).Infof("jcallen - disk change was here")
 	// Only non-linked clones may expand the size of the template's disk.
-	if snapshotRef == nil {
-		diskSpec, err := getDiskSpec(s, devices)
-		if err != nil {
-			return "", fmt.Errorf("error getting disk spec for %q: %w", s.providerSpec.Snapshot, err)
-		}
-		deviceSpecs = append(deviceSpecs, diskSpec)
-	}
-
-	klog.V(3).Infof("Getting network devices")
 	/*
-		networkDevices, err := getNetworkDevices(s, devices)
-		if err != nil {
-			return "", fmt.Errorf("error getting network specs: %v", err)
+		if snapshotRef == nil {
+			diskSpec, err := getDiskSpec(s, devices)
+			if err != nil {
+				return "", fmt.Errorf("error getting disk spec for %q: %w", s.providerSpec.Snapshot, err)
+			}
+			deviceSpecs = append(deviceSpecs, diskSpec)
 		}
 	*/
 
-	//deviceSpecs = append(deviceSpecs, networkDevices...)
+	klog.V(3).Infof("Getting network devices")
+	networkDevices, err := getNetworkDevices(s, devices)
+	if err != nil {
+		return "", fmt.Errorf("error getting network specs: %v", err)
+	}
+
+	deviceSpecs = append(deviceSpecs, networkDevices...)
 
 	extraConfig := []types.BaseOptionValue{}
 
@@ -609,7 +610,6 @@ func clone(s *machineScope) (string, error) {
 		Key:   GuestInfoHostname,
 		Value: s.machine.GetName(),
 	})
-	//DeviceChange:      deviceSpecs,
 
 	spec := types.VirtualMachineCloneSpec{
 		Config: &types.VirtualMachineConfigSpec{
