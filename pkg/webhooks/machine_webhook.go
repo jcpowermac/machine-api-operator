@@ -1614,7 +1614,7 @@ func validateVSphere(m *machinev1beta1.Machine, config *admissionConfig) (bool, 
 	}
 
 	if providerSpec.Template == "" {
-		errs = append(errs, field.Required(field.NewPath("providerSpec", "template"), "template must be provided"))
+		errs = append(errs, field.Required(field.NewPath("providerSpec", "template"), "template must be provided. This field may have been incorrectly set to empty in older versions. Please provide the correct template reference"))
 	}
 
 	workspaceWarnings, workspaceErrors := validateVSphereWorkspace(providerSpec.Workspace, config, field.NewPath("providerSpec", "workspace"))
@@ -1769,7 +1769,8 @@ func validateVSphereNetwork(network machinev1beta1.NetworkSpec, parentPath *fiel
 	for i, spec := range network.Devices {
 		fldPath := parentPath.Child("devices").Index(i)
 		if spec.NetworkName == "" {
-			errs = append(errs, field.Required(fldPath.Child("networkName"), "networkName must be provided"))
+			// For older releases, provide more context about networkName issues that may have occurred in older versions
+			errs = append(errs, field.Required(fldPath.Child("networkName"), "networkName must be provided. This field may have been incorrectly set to empty in older versions. Please provide the correct network name"))
 		}
 	}
 
